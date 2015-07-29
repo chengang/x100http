@@ -68,11 +68,13 @@ post(url, handler_function)
 
     struct ``request`` (will explain below) will be passed to the handlder function when it is called.
 
-static(url_prefix, file_path)
+static(url_prefix, file_path, cors=allow_domain)
 -----------------------------
     set a route acl for static file
 
     Static file request with ``url_prefix`` will be routing to the file in ``file_path``.
+
+    Default value of cors is "*", allow all CORS request matching this route rule.
 
 upload(url, upload_handler_class)
 ---------------------------------
@@ -126,6 +128,12 @@ routing for HTTP GET can be more flexible like this:
 .. code-block::
 
     app.get("/one_dir/<arg_first>_<arg_second>.py?abc=def", regex_get)
+
+allow all domain for CORS like this:
+
+.. code-block::
+
+    app.static("/static/test/", "/tmp/sta/", cors="*")
 
 
 |
@@ -192,7 +200,7 @@ HTTP ERROR 500
 SUPPORTED PYTHON VERSIONS
 =========================
 
-    x100http only supports python 3.4 or newer.
+    x100http only supports python 3.4 or newer, because of ``re.fullmatch`` and ``os.sendfile``.
 
 
 |

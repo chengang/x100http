@@ -79,11 +79,61 @@ class X100HTTPServerHelper:
     def get_mime(path):
         if os.path.splitext(path)[1] == '.css':
             return "text/css"
-        elif os.path.splitext(path)[1] == '.ico':
-            return "image/x-icon"
         elif os.path.splitext(path)[1] == '.html':
             return "text/html"
-        return ""
+        elif os.path.splitext(path)[1] == '.txt':
+            return "text/plain"
+        elif os.path.splitext(path)[1] == '.jpg':
+            return "image/jpeg"
+        elif os.path.splitext(path)[1] == '.jpeg':
+            return "image/jpeg"
+        elif os.path.splitext(path)[1] == '.png':
+            return "image/png"
+        elif os.path.splitext(path)[1] == '.gif':
+            return "image/gif"
+        elif os.path.splitext(path)[1] == '.webp':
+            return "image/webp"
+        elif os.path.splitext(path)[1] == '.ico':
+            return "image/x-icon"
+        elif os.path.splitext(path)[1] == '.ts':
+            return "video/mp2t"
+        elif os.path.splitext(path)[1] == '.flv':
+            return "video/x-flv"
+        elif os.path.splitext(path)[1] == '.mp4':
+            return "video/mp4"
+        elif os.path.splitext(path)[1] == '.f4v':
+            return "video/x-f4v"
+        elif os.path.splitext(path)[1] == '.m4v':
+            return "video/x-m4v"
+        elif os.path.splitext(path)[1] == '.avi':
+            return "video/x-msvideo"
+        elif os.path.splitext(path)[1] == '.mpeg':
+            return "video/mpeg"
+        elif os.path.splitext(path)[1] == '.3gp':
+            return "video/3gpp"
+        elif os.path.splitext(path)[1] == '.webm':
+            return "video/webm"
+        elif os.path.splitext(path)[1] == '.aac':
+            return "audio/x-aac"
+        elif os.path.splitext(path)[1] == '.mp4a':
+            return "audio/mp4"
+        elif os.path.splitext(path)[1] == '.weba':
+            return "audio/webm"
+        elif os.path.splitext(path)[1] == '.m3u8':
+            return "application/vnd.apple.mpegurl"
+        elif os.path.splitext(path)[1] == '.ttf':
+            return "application/x-font-ttf"
+        elif os.path.splitext(path)[1] == '.swf':
+            return "application/x-shockwave-flash"
+        elif os.path.splitext(path)[1] == '.json':
+            return "application/json"
+        elif os.path.splitext(path)[1] == '.pdf':
+            return "application/pdf"
+        elif os.path.splitext(path)[1] == '.apk':
+            return "application/vnd.android.package-archive"
+        elif os.path.splitext(path)[1] == '.bin':
+            return "application/octet-stream"
+        return "application/octet-stream"
 
     def get_file_basename(path):
         file_basename = path[1:].split('?')[0]
@@ -309,7 +359,8 @@ class X100HTTPServer(BaseHTTPRequestHandler):
                     "Content-type", X100HTTPServerHelper.get_mime(self.file_path_without_query_string))
                 self.end_headers()
                 f = open(file_basename, "rb", buffering=0)
-                os.sendfile(self.wfile.fileno(), f.fileno(), 0, 0)
+                os.sendfile(
+                    self.wfile.fileno(), f.fileno(), 0, os.path.getsize(file_basename))
                 f.close()
             else:
                 for patten in self.__class__.routers_static:
@@ -317,14 +368,21 @@ class X100HTTPServer(BaseHTTPRequestHandler):
                         self.file_path_without_query_string)
                     if result:
                         static_file_path = self.__class__.routers_static[
-                            patten] + result.group(1).split('?')[0]
+                            patten][0] + result.group(1).split('?')[0]
+                        cors = self.__class__.routers_static[patten][1]
                         if os.path.exists(static_file_path):
                             self.send_response(200)
                             self.send_header(
                                 "Content-type", X100HTTPServerHelper.get_mime(self.file_path_without_query_string))
+                            if cors:
+                                self.send_header(
+                                    "Access-Control-Allow-Origin", cors)
+                                self.send_header(
+                                    "Access-Control-Allow-Methods", 'GET, POST, OPTIONS')
                             self.end_headers()
                             f = open(static_file_path, "rb", buffering=0)
-                            os.sendfile(self.wfile.fileno(), f.fileno(), 0, 0)
+                            os.sendfile(
+                                self.wfile.fileno(), f.fileno(), 0, os.path.getsize(static_file_path))
                             f.close()
                             return
                 self.send_error(404)
@@ -372,13 +430,13 @@ class X100HTTP:
             return
         X100HTTPServer.routers_upload[url] = upload_cls
 
-    def static(self, url_prefix, absolute_path):
+    def static(self, url_prefix, absolute_path, cors="*"):
         if url_prefix[:1] != '/':
             self.logger.logger.warning("Route rule MUST begin with '/'.")
             return
         pattern = url_prefix + "([" + self.special_chars + "\_\.]+)"
         prog = re.compile(pattern)
-        X100HTTPServer.routers_static[prog] = absolute_path
+        X100HTTPServer.routers_static[prog] = [absolute_path, cors]
 
     def run(self, ip, port):
         s = ForkingHTTPServer((ip, port), X100HTTPServer)

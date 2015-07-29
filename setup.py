@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='x100http',
-    version='0.2.4',
+    version='0.2.5',
 
     description='web framework support customing file upload processing',
     long_description=open('README.rst').read(),
