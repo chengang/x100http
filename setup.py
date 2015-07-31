@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='x100http',
-    version='0.2.5',
+    version='0.2.7',
 
     description='web framework support customing file upload processing',
     long_description=open('README.rst').read(),
@@ -13,9 +13,10 @@ setup(
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Topic :: Internet :: WWW/HTTP :: HTTP Servers',
+        'Topic :: Multimedia :: Video :: Conversion',
 
         'License :: OSI Approved :: MIT License',
 

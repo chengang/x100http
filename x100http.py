@@ -434,7 +434,7 @@ class X100HTTP:
         if url_prefix[:1] != '/':
             self.logger.logger.warning("Route rule MUST begin with '/'.")
             return
-        pattern = url_prefix + "([" + self.special_chars + "\_\.]+)"
+        pattern = url_prefix + "([" + self.special_chars + "\_\.\/]+)"
         prog = re.compile(pattern)
         X100HTTPServer.routers_static[prog] = [absolute_path, cors]
 

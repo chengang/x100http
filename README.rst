@@ -69,7 +69,7 @@ post(url, handler_function)
     struct ``request`` (will explain below) will be passed to the handlder function when it is called.
 
 static(url_prefix, file_path, cors=allow_domain)
------------------------------
+------------------------------------------------
     set a route acl for static file
 
     Static file request with ``url_prefix`` will be routing to the file in ``file_path``.
